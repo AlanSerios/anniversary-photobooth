@@ -41,30 +41,21 @@ export default function ReadyScreen({ onReady, onGallery }) {
               Tan-aw sa camera my Babiii — Bana will be watching.
             </p>
 
-            <div className="ready-btn-outer">
-              <button className="ready-btn" onClick={handleReadyClick} id="btn-im-ready">
-                I'm ready
-                <span className="ready-btn-icon" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-              </button>
+            <div className="ready-actions">
+              <div className="ready-btn-outer">
+                <button className="ready-btn" onClick={handleReadyClick} id="btn-im-ready">
+                  I'm ready
+                  <span className="ready-btn-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </button>
+              </div>
               
               <button 
                 onClick={onGallery}
-                style={{
-                  marginTop: '12px',
-                  background: 'none',
-                  border: '1px solid #C97B84',
-                  color: '#C97B84',
-                  padding: '8px 24px',
-                  borderRadius: '24px',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  width: '100%',
-                  fontFamily: 'inherit'
-                }}
+                className="ready-gallery-btn"
               >
                 View Gallery
               </button>
