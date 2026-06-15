@@ -62,6 +62,22 @@ export default function GalleryScreen({ onBack, localSessions }) {
     const interval = setInterval(() => setFrameIdx(f => f + 1), 80);
     return () => clearInterval(interval);
   }, []);
+  const handleDownloadSession = (session) => {
+    (session.photos || []).filter(Boolean).forEach((photoItem, i) => {
+      // If it's a local burst array, download the middle frame as a static image fallback.
+      // If it's a Supabase URL, download the actual GIF directly.
+      const isArray = Array.isArray(photoItem);
+      const src = isArray ? photoItem[Math.floor(photoItem.length / 2)] : photoItem;
+      const ext = isArray ? 'png' : 'gif';
+      
+      const a = document.createElement('a');
+      a.href = src;
+      a.download = `anniversary-photo-${session.id.slice(0, 5)}-${i}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  };
 
   return (
     <main className="gallery-screen screen-enter">
@@ -116,13 +132,21 @@ export default function GalleryScreen({ onBack, localSessions }) {
                 className="gallery-session"
                 style={{ animationDelay: `${idx * 0.08}s` }}
               >
-                <div className="gallery-session-meta">
-                  {session.date
-                    ? new Date(session.date).toLocaleString('en-US', {
-                        month: 'short', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit',
-                      })
-                    : 'recent session'}
+                <div className="gallery-session-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>
+                    {session.date
+                      ? new Date(session.date).toLocaleString('en-US', {
+                          month: 'short', day: 'numeric',
+                          hour: '2-digit', minute: '2-digit',
+                        })
+                      : 'recent session'}
+                  </span>
+                  <button 
+                    onClick={() => handleDownloadSession(session)}
+                    style={{ background: 'none', border: '1px solid #C97B84', color: '#C97B84', padding: '4px 12px', borderRadius: '16px', fontSize: '0.8rem', cursor: 'pointer' }}
+                  >
+                    Download
+                  </button>
                 </div>
 
                 <div className="gallery-photo-row">

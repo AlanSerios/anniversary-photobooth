@@ -21,7 +21,13 @@ function generateSessionId() {
 export default function App() {
   const [screen,       setScreen]       = useState('ready');
   const [photos,       setPhotos]       = useState([]);
-  const [localHistory, setLocalHistory] = useState([]); // fallback gallery
+  const [localHistory, setLocalHistory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('anniversary_history');
+      if (saved) return JSON.parse(saved);
+    } catch(e){}
+    return [];
+  });
   const sessionId = useMemo(() => generateSessionId(), []);
 
   const handleReady = () => setScreen('camera');
@@ -32,15 +38,23 @@ export default function App() {
   };
 
   const handleSend = () => {
-    // Save local history as fallback when Supabase isn't configured
-    setLocalHistory(prev => [
-      {
-        id:     sessionId,
-        date:   new Date().toISOString(),
-        photos: photos,
-      },
-      ...prev,
-    ]);
+    // Save local history to cache so it remains on reload
+    setLocalHistory(prev => {
+      const updated = [
+        {
+          id:     sessionId,
+          date:   new Date().toISOString(),
+          photos: photos,
+        },
+        ...prev,
+      ].slice(0, 3); // Keep last 3 to avoid localStorage size limits
+      try {
+        localStorage.setItem('anniversary_history', JSON.stringify(updated));
+      } catch(e) {
+        console.error('Failed to cache history:', e);
+      }
+      return updated;
+    });
     setScreen('result');
   };
 
