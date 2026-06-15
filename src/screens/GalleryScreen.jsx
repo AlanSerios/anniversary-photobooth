@@ -38,9 +38,16 @@ export default function GalleryScreen({ onBack, localSessions }) {
             grouped[row.session_id].photos[row.photo_index] = row.photo_url;
           }
 
-          // Merge local sessions that might have bursts with Supabase sessions
-          // Assuming localSessions is more recent or just fallback
-          setSessions(Object.values(grouped));
+          const supabaseSessions = Object.values(grouped);
+          
+          // Merge local sessions that haven't finished uploading to Supabase yet
+          const supabaseSessionIds = new Set(supabaseSessions.map(s => s.id));
+          const localOnly = (localSessions || []).filter(s => !supabaseSessionIds.has(s.id));
+          
+          const combined = [...localOnly, ...supabaseSessions];
+          combined.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+          setSessions(combined);
         } catch (e) {
           console.error('Gallery fetch error:', e);
           setSessions(localSessions || []);
