@@ -8,7 +8,7 @@ import './ResultScreen.css';
  * Canvas-based strip compositor — avoids html2canvas blank-image bug.
  * Draws each photo directly via drawImage() and composites a full strip PNG.
  */
-async function buildStripCanvas(photos) {
+export async function buildStripCanvas(photos) {
   const PHOTO_SIZE  = 400;
   const GAP         = 16;
   const PADDING_X   = 24;
@@ -92,7 +92,39 @@ async function buildGifForCloud(burst) {
     });
   });
 }
+export async function buildAnimatedSlip(photos) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const maxFrames = Math.max(...photos.map(b => b.length));
+      const gif = new GIF({ workers: 2, quality: 10, workerScript: '/gif.worker.js' });
 
+      for (let i = 0; i < maxFrames; i++) {
+        const framePhotos = [
+          photos[0][i % photos[0].length],
+          photos[1][i % photos[1].length],
+          photos[2][i % photos[2].length]
+        ];
+        const dataUrl = await buildStripCanvas(framePhotos);
+        const img = await new Promise((res, rej) => {
+          const el = new Image();
+          el.onload = () => res(el);
+          el.onerror = rej;
+          el.src = dataUrl;
+        });
+        gif.addFrame(img, { delay: 80 });
+      }
+
+      gif.on('finished', blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+      gif.render();
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
 export default function ResultScreen({ photos, sessionId, onRetake, onGallery }) {
   const [saveStatus,    setSaveStatus]    = useState('idle');
   const [isDownloading, setIsDownloading] = useState(false);
@@ -102,12 +134,23 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
     async function uploadPhotos() {
       setSaveStatus('saving');
       try {
-        const results = await Promise.all(
-          photos.map(async (burst, i) => {
-            const gifDataUrl = await buildGifForCloud(burst);
-            return savePhoto(gifDataUrl, i, sessionId);
-          })
-        );
+        const uploadPromises = photos.map(async (burst, i) => {
+          const gifDataUrl = await buildGifForCloud(burst);
+          return savePhoto(gifDataUrl, i, sessionId);
+        });
+
+        // Generate and upload the full animated slip as index 3
+        const slipPromise = (async () => {
+          try {
+            const slipGifUrl = await buildAnimatedSlip(photos);
+            return savePhoto(slipGifUrl, 3, sessionId);
+          } catch (e) {
+            console.error('Failed to generate animated slip for cloud:', e);
+            return null; // Don't fail the whole upload if slip fails
+          }
+        })();
+
+        const results = await Promise.all([...uploadPromises, slipPromise]);
         setSaveStatus(results.every(r => r !== null) ? 'saved' : 'idle');
       } catch {
         setSaveStatus('error');

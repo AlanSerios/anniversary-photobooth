@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import FloatingPetals from '../components/FloatingPetals';
+import { buildStripCanvas } from './ResultScreen';
 import './GalleryScreen.css';
 
 /**
@@ -62,21 +63,32 @@ export default function GalleryScreen({ onBack, localSessions }) {
     const interval = setInterval(() => setFrameIdx(f => f + 1), 80);
     return () => clearInterval(interval);
   }, []);
-  const handleDownloadSession = (session) => {
-    (session.photos || []).filter(Boolean).forEach((photoItem, i) => {
-      // If it's a local burst array, download the middle frame as a static image fallback.
-      // If it's a Supabase URL, download the actual GIF directly.
-      const isArray = Array.isArray(photoItem);
-      const src = isArray ? photoItem[Math.floor(photoItem.length / 2)] : photoItem;
-      const ext = isArray ? 'png' : 'gif';
-      
+  const handleDownloadSession = async (session) => {
+    const slipItem = session.photos[3];
+    if (slipItem && typeof slipItem === 'string') {
+      // Download the animated slip from the cloud
       const a = document.createElement('a');
-      a.href = src;
-      a.download = `anniversary-photo-${session.id.slice(0, 5)}-${i}.${ext}`;
+      a.href = slipItem;
+      a.download = `anniversary-slip-${session.id.slice(0, 5)}.gif`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    });
+    } else {
+      // Local fallback (offline or still uploading)
+      try {
+        const bursts = session.photos.slice(0, 3);
+        const staticPhotos = bursts.map(burst => burst[Math.floor(burst.length / 2)]);
+        const dataUrl = await buildStripCanvas(staticPhotos);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `anniversary-slip-${session.id.slice(0, 5)}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (e) {
+        console.error('Local download error:', e);
+      }
+    }
   };
 
   return (
@@ -150,7 +162,7 @@ export default function GalleryScreen({ onBack, localSessions }) {
                 </div>
 
                 <div className="gallery-photo-row">
-                  {(session.photos || []).filter(Boolean).map((photoItem, i) => {
+                  {(session.photos || []).slice(0, 3).filter(Boolean).map((photoItem, i) => {
                     const src = Array.isArray(photoItem) ? photoItem[frameIdx % photoItem.length] : photoItem;
                     return (
                       <div key={i} className="gallery-photo">
