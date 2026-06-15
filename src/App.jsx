@@ -40,11 +40,13 @@ export default function App() {
   const handleSend = () => {
     // Save local history to cache so it remains on reload
     setLocalHistory(prev => {
+      // Compress the cache by only saving the first frame of each burst
+      const thumbnailPhotos = photos.map(burst => [burst[0]]);
       const updated = [
         {
           id:     sessionId,
           date:   new Date().toISOString(),
-          photos: photos,
+          photos: thumbnailPhotos,
         },
         ...prev,
       ].slice(0, 3); // Keep last 3 to avoid localStorage size limits
@@ -70,7 +72,7 @@ export default function App() {
 
   return (
     <>
-      {screen === 'ready'   && <ReadyScreen   onReady={handleReady} />}
+      {screen === 'ready'   && <ReadyScreen   onReady={handleReady} onGallery={() => setScreen('gallery')} />}
       {screen === 'camera'  && <CameraScreen  onComplete={handleCameraComplete} />}
       {screen === 'confirm' && (
         <SendToBana

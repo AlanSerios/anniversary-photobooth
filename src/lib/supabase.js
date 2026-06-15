@@ -36,7 +36,7 @@ export async function savePhoto(photoDataUrl, index, sessionId) {
     // Upload to Supabase Storage bucket named 'moments'
     const { error: uploadError } = await supabase.storage
       .from('moments')
-      .upload(filename, blob, { contentType: isGif ? 'image/gif' : 'image/jpeg', upsert: true });
+      .upload(filename, blob, { contentType: isGif ? 'image/gif' : 'image/jpeg', upsert: false });
 
     if (uploadError) throw uploadError;
 

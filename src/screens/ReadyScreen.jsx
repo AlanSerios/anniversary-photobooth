@@ -2,7 +2,7 @@ import FloatingPetals from '../components/FloatingPetals';
 import { unlockAudio } from '../lib/audio';
 import './ReadyScreen.css';
 
-export default function ReadyScreen({ onReady }) {
+export default function ReadyScreen({ onReady, onGallery }) {
   const handleReadyClick = () => {
     unlockAudio();
     onReady();
@@ -49,6 +49,24 @@ export default function ReadyScreen({ onReady }) {
                     <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </span>
+              </button>
+              
+              <button 
+                onClick={onGallery}
+                style={{
+                  marginTop: '12px',
+                  background: 'none',
+                  border: '1px solid #C97B84',
+                  color: '#C97B84',
+                  padding: '8px 24px',
+                  borderRadius: '24px',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  width: '100%',
+                  fontFamily: 'inherit'
+                }}
+              >
+                View Gallery
               </button>
             </div>
 
