@@ -2,7 +2,7 @@ import FloatingPetals from '../components/FloatingPetals';
 import { unlockAudio } from '../lib/audio';
 import './ReadyScreen.css';
 
-export default function ReadyScreen({ onReady, onGallery }) {
+export default function ReadyScreen({ onReady, onGallery, hasHistory }) {
   const handleReadyClick = () => {
     unlockAudio();
     onReady();
@@ -41,7 +41,7 @@ export default function ReadyScreen({ onReady, onGallery }) {
               Tan-aw sa camera my Babiii — Bana will be watching.
             </p>
 
-            <div className="ready-actions">
+            <div className="ready-actions-row">
               <div className="ready-btn-outer">
                 <button className="ready-btn" onClick={handleReadyClick} id="btn-im-ready">
                   I'm ready
@@ -53,12 +53,11 @@ export default function ReadyScreen({ onReady, onGallery }) {
                 </button>
               </div>
               
-              <button 
-                onClick={onGallery}
-                className="ready-gallery-btn"
-              >
-                View Gallery
-              </button>
+              {hasHistory && (
+                <button onClick={onGallery} className="ready-gallery-btn">
+                  View Gallery
+                </button>
+              )}
             </div>
 
             <span className="ready-footer">

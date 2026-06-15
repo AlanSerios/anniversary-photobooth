@@ -152,11 +152,12 @@
 }
 
 /* CTA */
-.ready-actions {
+.ready-actions-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 2rem;
   width: 100%;
 }
 
@@ -167,7 +168,7 @@
   padding: 5px;
   transition: all 0.4s var(--ease-out);
   position: relative;
-  align-self: flex-start;
+  display: inline-flex;
 }
 
 /* Pulse animation behind the button */

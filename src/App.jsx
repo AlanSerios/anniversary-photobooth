@@ -72,7 +72,7 @@ export default function App() {
 
   return (
     <>
-      {screen === 'ready'   && <ReadyScreen   onReady={handleReady} onGallery={() => setScreen('gallery')} />}
+      {screen === 'ready'   && <ReadyScreen   onReady={handleReady} onGallery={() => setScreen('gallery')} hasHistory={localHistory.length > 0} />}
       {screen === 'camera'  && <CameraScreen  onComplete={handleCameraComplete} />}
       {screen === 'confirm' && (
         <SendToBana
