@@ -1,0 +1,129 @@
+/* ===================================
+   GLOBAL DESIGN SYSTEM v2
+   Palette: Blush Rose · Dusty Lavender · Warm Cream
+   =================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+
+:root {
+  --rose-deep:     #C97B84;
+  --rose-mid:      #E8B4B8;
+  --rose-pale:     #F2D7D9;
+  --rose-blush:    #FBF0F1;
+  --lavender-deep: #9E8AAF;
+  --lavender-mid:  #C8B8D4;
+  --lavender-pale: #EDE8F3;
+  --cream:         #FDF8F5;
+  --cream-warm:    #F7F0E8;
+  --ink:           #1A1514;
+  --ink-light:     #5A4F4B;
+  --ink-muted:     #9E948F;
+  --white:         #FFFFFF;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Geist', system-ui, sans-serif;
+  --font-mono:    'Geist Mono', monospace;
+
+  --radius-sm:  12px;
+  --radius-md:  20px;
+  --radius-lg:  28px;
+  --radius-xl:  40px;
+
+  --spring:   cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  min-height: 100dvh;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--rose-pale);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--rose-deep);
+  outline-offset: 3px;
+}
+
+img { display: block; max-width: 100%; }
+
+/* ══════════════════════════════════════
+   SCREEN TRANSITION — Petal Bloom wipe
+   ══════════════════════════════════════ */
+.screen-enter {
+  animation: screenReveal 0.65s var(--ease-out) both;
+}
+
+@keyframes screenReveal {
+  from {
+    opacity: 0;
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    opacity: 1;
+    clip-path: circle(150% at 50% 50%);
+  }
+}
+
+/* ══════════════════════════════════
+   FLOATING PETALS (background layer)
+   ══════════════════════════════════ */
+.petal-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  opacity: 0;
+  animation: petalFall linear infinite both;
+  transform-origin: center center;
+}
+
+@keyframes petalFall {
+  0%   { opacity: 0;    transform: translateY(-60px) rotate(0deg) scale(0.8); }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { opacity: 0;    transform: translateY(110vh) rotate(360deg) scale(1.1); }
+}
+
+.petal.explosion {
+  animation: petalExplode cubic-bezier(0.25, 1, 0.5, 1) both;
+  top: 50%;
+  left: 50%;
+  margin-top: -10px;
+  margin-left: -10px;
+}
+
+@keyframes petalExplode {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0); }
+  10%  { opacity: 1; transform: translate(0, 0) scale(var(--explode-scale)); }
+  100% { 
+    opacity: 0; 
+    transform: translate(var(--explode-x), var(--explode-y)) rotate(var(--explode-rot)) scale(var(--explode-scale)); 
+  }
+}

@@ -1,0 +1,121 @@
+.timeline-container {
+  width: 100vw;
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 20vh;
+}
+
+.scrapbook-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 150vh; /* Plenty of scrolling space for messy layout */
+}
+
+/* Authentic Polaroid Frame styling */
+.polaroid-frame {
+  background: white;
+  padding: 10px 10px 40px 10px; /* Thicker bottom for caption */
+  border-radius: 2px;
+  box-shadow: 
+    0 4px 6px rgba(0,0,0,0.1), 
+    0 1px 3px rgba(0,0,0,0.08),
+    inset 0 0 0 1px rgba(0,0,0,0.05); /* Slight inner border to prevent AI look */
+  position: absolute; /* Absolute positioning for scatter layout */
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.polaroid-frame:hover {
+  transform: scale(1.1) rotate(0deg) !important;
+  z-index: 100 !important; /* Bring to front on hover */
+  box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+}
+
+.polaroid-image-container {
+  width: 100%;
+  height: 260px;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.polaroid-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(10%) contrast(105%); /* Vintage polaroid feel */
+}
+
+.polaroid-caption {
+  font-family: var(--font-handwriting);
+  font-size: 1.4rem;
+  color: #333;
+  text-align: center;
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+}
+
+.polaroid-year {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--accent-color);
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  transform: rotate(15deg);
+  text-shadow: 2px 2px 0px white;
+  z-index: 10;
+}
+
+/* Washi tape placement for polaroids */
+.tape-top-left {
+  top: -10px;
+  left: -20px;
+  transform: rotate(-15deg);
+}
+
+.tape-top-center {
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%) rotate(5deg);
+}
+
+.tape-top-right {
+  top: -10px;
+  right: -20px;
+  transform: rotate(20deg);
+}
+
+/* Scatter positioning for different items */
+.scatter-1 { top: 5%; left: 10%; transform: rotate(-8deg); z-index: 10; }
+.scatter-2 { top: 15%; right: 15%; transform: rotate(12deg); z-index: 11; }
+.scatter-3 { top: 35%; left: 20%; transform: rotate(-5deg); z-index: 12; }
+.scatter-4 { top: 45%; right: 10%; transform: rotate(15deg); z-index: 13; }
+.scatter-5 { top: 60%; left: 15%; transform: rotate(-12deg); z-index: 14; }
+.scatter-6 { top: 75%; right: 25%; transform: rotate(8deg); z-index: 15; }
+.scatter-7 { top: 85%; left: 30%; transform: rotate(-10deg); z-index: 16; }
+.scatter-8 { top: 95%; right: 10%; transform: rotate(5deg); z-index: 17; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .polaroid-frame {
+    position: relative;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    margin: 40px auto;
+    transform: rotate(0deg) !important;
+  }
+  
+  .scrapbook-canvas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}

@@ -1,0 +1,6 @@
+/* App.css — intentionally minimal. All styling lives in index.css and screen-level CSS files. */
+
+/* Page-level transition layer (future use) */
+#root {
+  isolation: isolate;
+}

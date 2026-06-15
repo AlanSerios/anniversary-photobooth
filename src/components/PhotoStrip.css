@@ -1,0 +1,170 @@
+.photostrip-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.photostrip-container {
+  width: 320px;
+  min-height: 800px;
+  background-color: #ffffff;
+  padding: 20px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.4s ease;
+  border-radius: 8px; /* subtle softening */
+}
+
+.photostrip-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.photo-slot {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.photo-slot:hover {
+  transform: scale(1.02);
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.empty-slot-text {
+  font-size: 4rem;
+  color: rgba(0,0,0,0.2);
+  font-weight: 300;
+  transition: color 0.3s;
+}
+
+.photo-slot:hover .empty-slot-text {
+  color: rgba(0,0,0,0.4);
+}
+
+/* Shapes */
+.photo-slot.shape-none {
+  border-radius: 0;
+}
+
+.photo-slot.shape-rounded {
+  border-radius: 20px;
+}
+
+.photo-slot.shape-circle {
+  border-radius: 50%;
+}
+
+.photo-slot.shape-heart {
+  /* Using clip-path for a generic heart shape */
+  clip-path: path('M140 20C73 20 20 74 20 140c0 135 136 170 228 284 92-114 228-149 228-284 0-66-53-120-120-120-48 0-90 28-108 68-18-40-60-68-108-68z');
+  /* Better alternative: SVG mask */
+  mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* Image & Video */
+.captured-photo, .live-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.live-feed {
+  transform: scaleX(-1);
+}
+
+.live-camera-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.capture-overlay {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-family: var(--font-cabinet);
+  font-size: 1rem;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  pointer-events: none;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.flash-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.flash-effect.active {
+  animation: quickFlash 0.3s ease-out;
+}
+
+@keyframes quickFlash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Bottom Text */
+.photostrip-footer {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.photostrip-logo {
+  text-align: center;
+  font-family: var(--font-handwriting);
+  font-size: 2.8rem;
+  color: #000;
+  min-height: 50px;
+  line-height: 1;
+}
+
+.photostrip-meta {
+  display: flex;
+  gap: 15px;
+  font-family: var(--font-cabinet);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #000;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

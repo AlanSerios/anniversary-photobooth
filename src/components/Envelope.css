@@ -1,0 +1,93 @@
+.envelope-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  background-color: var(--bg-color); /* Grid paper background bleeds through */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.envelope-overlay.opening {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cute Pastel Pink Envelope */
+.envelope {
+  position: relative;
+  width: 90vw;
+  max-width: 600px;
+  height: 60vh;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border: 3px dashed #fff; /* Cute dashed stitch border */
+  transform: rotate(-2deg); /* Slightly askew scrapbook placement */
+}
+
+/* Hand-drawn style seal */
+.seal-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.seal-button:hover {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.seal-heart {
+  width: 80px;
+  height: 80px;
+  fill: var(--accent-color);
+  filter: drop-shadow(0 4px 6px rgba(255, 107, 139, 0.4));
+  transition: all 0.3s ease;
+}
+
+.seal-button:hover .seal-heart {
+  fill: #ff477e;
+  filter: drop-shadow(0 6px 12px rgba(255, 107, 139, 0.6));
+}
+
+.seal-text {
+  font-family: var(--font-handwriting);
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  font-weight: 700;
+}
+
+.kitten-placeholder {
+  position: absolute;
+  top: -40px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  transform: rotate(15deg);
+  z-index: 20;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+}
+
+.kitten-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #fff;
+}
