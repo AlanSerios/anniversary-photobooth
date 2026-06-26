@@ -311,7 +311,7 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
             </h1>
 
             <p className="result-sub">
-              Three frames. Eight years. You looked beautiful in every single one. We can now go back na sa Link My Loveeeeeeeee &lt;3
+              Three frames. Eight years. You looked beautiful in every single one.
             </p>
 
             <div className="result-actions-clean">
@@ -354,14 +354,6 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
                     View gallery
                   </button>
                 )}
-                
-                <a 
-                  href="https://unifab.my.canva.site/" 
-                  className="btn-secondary btn-gallery" 
-                  style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  Go Back to Letter
-                </a>
               </div>
             </div>
           </div>
