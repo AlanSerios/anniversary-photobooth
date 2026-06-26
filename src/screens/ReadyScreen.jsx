@@ -1,4 +1,4 @@
-import FloatingPetals from '../components/FloatingPetals';
+import React from 'react';
 import { unlockAudio } from '../lib/audio';
 import './ReadyScreen.css';
 
@@ -7,65 +7,63 @@ export default function ReadyScreen({ onReady, onGallery, hasHistory }) {
     unlockAudio();
     onReady();
   };
+
   return (
-    <main className="ready-screen screen-enter">
-      <FloatingPetals />
-
-      {/* Left: pixel art character */}
-      <section className="ready-art-side">
-        <div className="ready-bana-wrap">
-          <img
-            src="/bana.png"
-            alt="Bana holding flowers"
-            className="ready-bana-img"
-            draggable="false"
-          />
+    <div className="ready-screen">
+      
+      {/* Top Section */}
+      <div className="canva-section-top">
+        <div className="canva-placeholder cat-image" aria-label="Cat with pink bow">
+          <span>Cat Image Here</span>
         </div>
-        <p className="ready-art-watermark">
-          Flowers to my beautiful Wife
-        </p>
-      </section>
-
-      {/* Right: the card */}
-      <section className="ready-card-side">
-        <div className="ready-card-outer">
-          <div className="ready-card-inner">
-            <span className="ready-eyebrow">photobooth · anniversary edition</span>
-
-            <h1 className="ready-headline">
-              Are you ready for the picture,{' '}
-              <em>my Love?</em>
-            </h1>
-
-            <p className="ready-sub">
-              Tan-aw sa camera my Babiii — Bana will be watching.
-            </p>
-
-            <div className="ready-actions-row">
-              <div className="ready-btn-outer">
-                <button className="ready-btn" onClick={handleReadyClick} id="btn-im-ready">
-                  I'm ready
-                  <span className="ready-btn-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </button>
-              </div>
-              
-              {hasHistory && (
-                <button onClick={onGallery} className="ready-gallery-btn">
-                  View Gallery
-                </button>
-              )}
-            </div>
-
-            <span className="ready-footer">
-              June 27, 2026 · 8 YEARS AND FOREVERMORE
-            </span>
-          </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h1 className="canva-title">
+            Happy 8th<br />
+            Anniversarry
+          </h1>
+          <h2 className="canva-subtitle">MY LOVEEE &lt;3</h2>
         </div>
-      </section>
-    </main>
+      </div>
+
+      {/* Middle Section */}
+      <div className="canva-section-middle">
+        <div className="canva-placeholder heart-collage" aria-label="Heart collage">
+           <span>Heart Collage Here</span>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <h3 className="canva-greeting">hiiii loveee!!!</h3>
+          <p className="canva-paragraph">
+            Welcome to Banas simple gift Babiii, I know it's not much pero since bana can't physically go there, I made this, a reminder of how much I love you. Today is a special day, and today I want to show and celebrate with you how far we had come. Come with bana as we go through every year that we had been through, the ups and the downs na we had faced while holding each others hands &lt;3
+          </p>
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="canva-section-bottom">
+        <p className="canva-bottom-text-1">before we start, smile babii &lt;3</p>
+        <p className="canva-bottom-text-2">i wanna see you smile always.....</p>
+        
+        <button 
+          className="camera-button" 
+          onClick={handleReadyClick}
+          id="btn-im-ready"
+        >
+          CLICK THE CAMERA TO CAPTURE PHOTO
+        </button>
+
+        {hasHistory && (
+          <button 
+            onClick={onGallery} 
+            className="camera-button" 
+            style={{ marginTop: '10px', fontSize: '1rem', padding: '10px 30px' }}
+          >
+            View Gallery
+          </button>
+        )}
+      </div>
+
+    </div>
   );
 }
