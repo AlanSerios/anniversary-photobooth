@@ -15,7 +15,7 @@
     "@supabase/supabase-js": "^2.108.2",
     "gif.js": "^0.2.0",
     "gsap": "^3.15.0",
-    "locomotive-scroll": "^5.0.1",
+    "locomotive-scroll": "^4.1.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
