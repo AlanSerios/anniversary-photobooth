@@ -9,9 +9,10 @@ import './GalleryScreen.css';
  * Falls back to locally stored sessions (in localStorage) when Supabase
  * is not configured.
  */
-export default function GalleryScreen({ onBack, localSessions }) {
+export default function GalleryScreen({ onBack, localSessions, mySessionIds = [] }) {
   const [sessions, setSessions] = useState([]);
   const [loading,  setLoading]  = useState(true);
+  const [activeTab, setActiveTab] = useState('shared');
 
   const [frameIdx, setFrameIdx] = useState(0);
 
@@ -91,6 +92,10 @@ export default function GalleryScreen({ onBack, localSessions }) {
     }
   };
 
+  const displayedSessions = activeTab === 'personal'
+    ? sessions.filter(s => mySessionIds.includes(s.id))
+    : sessions;
+
   return (
     <main className="gallery-screen screen-enter">
       <FloatingPetals />
@@ -108,6 +113,21 @@ export default function GalleryScreen({ onBack, localSessions }) {
           </button>
         </header>
 
+        <div className="gallery-tabs">
+          <button 
+            className={`gallery-tab ${activeTab === 'personal' ? 'active' : ''}`}
+            onClick={() => setActiveTab('personal')}
+          >
+            My Photos
+          </button>
+          <button 
+            className={`gallery-tab ${activeTab === 'shared' ? 'active' : ''}`}
+            onClick={() => setActiveTab('shared')}
+          >
+            Shared Gallery
+          </button>
+        </div>
+
         {loading && (
           <div className="gallery-empty">
             <div className="gallery-empty-icon">
@@ -120,7 +140,7 @@ export default function GalleryScreen({ onBack, localSessions }) {
           </div>
         )}
 
-        {!loading && sessions.length === 0 && (
+        {!loading && displayedSessions.length === 0 && (
           <div className="gallery-empty">
             <div className="gallery-empty-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -129,16 +149,20 @@ export default function GalleryScreen({ onBack, localSessions }) {
                 <path d="M3 17l4-4 3 3 4-5 7 6" stroke="#C8B8D4" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <p className="gallery-empty-title">No photos yet</p>
+            <p className="gallery-empty-title">
+              {activeTab === 'personal' ? 'No personal photos yet' : 'No photos yet'}
+            </p>
             <p className="gallery-empty-sub">
-              Her photos will appear here after she takes her first picture.
+              {activeTab === 'personal' 
+                ? 'Your photos will appear here after you take your first picture.' 
+                : 'Her photos will appear here after she takes her first picture.'}
             </p>
           </div>
         )}
 
-        {!loading && sessions.length > 0 && (
+        {!loading && displayedSessions.length > 0 && (
           <div className="gallery-sessions">
-            {sessions.map((session, idx) => (
+            {displayedSessions.map((session, idx) => (
               <div
                 key={session.id}
                 className="gallery-session"

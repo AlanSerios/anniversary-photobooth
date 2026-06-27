@@ -28,6 +28,20 @@ export default function App() {
     } catch(e){}
     return [];
   });
+  const [mySessionIds, setMySessionIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('my_session_ids');
+      if (saved) return JSON.parse(saved);
+      
+      const hist = localStorage.getItem('anniversary_history');
+      if (hist) {
+        const imported = JSON.parse(hist).map(s => s.id);
+        localStorage.setItem('my_session_ids', JSON.stringify(imported));
+        return imported;
+      }
+    } catch(e){}
+    return [];
+  });
   const sessionId = useMemo(() => generateSessionId(), []);
 
   const handleReady = () => setScreen('camera');
@@ -57,6 +71,16 @@ export default function App() {
       }
       return updated;
     });
+
+    setMySessionIds(prev => {
+      if (prev.includes(sessionId)) return prev;
+      const updated = [sessionId, ...prev];
+      try {
+        localStorage.setItem('my_session_ids', JSON.stringify(updated));
+      } catch(e) {}
+      return updated;
+    });
+
     setScreen('result');
   };
 
@@ -93,6 +117,7 @@ export default function App() {
         <GalleryScreen
           onBack={() => setScreen('ready')}
           localSessions={localHistory}
+          mySessionIds={mySessionIds}
         />
       )}
     </>
