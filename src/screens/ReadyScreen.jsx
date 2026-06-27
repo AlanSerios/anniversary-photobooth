@@ -53,11 +53,9 @@ export default function ReadyScreen({ onReady, onGallery, hasHistory }) {
                 </button>
               </div>
               
-              {hasHistory && (
-                <button onClick={onGallery} className="ready-gallery-btn">
-                  View Gallery
-                </button>
-              )}
+              <button onClick={onGallery} className="ready-gallery-btn">
+                View Gallery
+              </button>
             </div>
 
             <span className="ready-footer">
