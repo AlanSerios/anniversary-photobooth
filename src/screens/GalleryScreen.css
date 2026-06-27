@@ -3,7 +3,6 @@
   position: relative;
   min-height: 100dvh;
   background-color: var(--cream);
-  overflow-y: auto;
   padding: 3rem 2rem;
 }
 
@@ -16,6 +15,8 @@
     radial-gradient(ellipse 40% 50% at 95% 95%, rgba(201, 123, 132, 0.15) 0%, transparent 60%);
   pointer-events: none;
   z-index: 0;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .gallery-inner {
