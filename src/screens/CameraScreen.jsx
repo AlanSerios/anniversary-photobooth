@@ -1,9 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
+import FloatingPetals from '../components/FloatingPetals';
 import './CameraScreen.css';
-import { playShutterSound } from '../lib/audio';
 
 const COUNTDOWN_FROM = 3;
 const DELAY_BEFORE_FIRST = 1500;
+const PAUSE_BETWEEN_SHOTS = 1200;
+
+const PROMPTS = [
+  'Smile, my Babiii',
+  'Now look right here',
+  'One last one, gorgeous',
+];
+
+const SUBPROMPTS = [
+  'Bana is watching you right now',
+  'You look so beautiful',
+  'Make it your best one',
+];
+
+import { playShutterSound } from '../lib/audio';
 
 export default function CameraScreen({ onComplete }) {
   const videoRef  = useRef(null);
@@ -58,8 +73,8 @@ export default function CameraScreen({ onComplete }) {
     ctx.translate(size, 0);
     ctx.scale(-1, 1);
     
-    // Grayscale high contrast baked filter
-    ctx.filter = 'grayscale(100%) contrast(1.5) brightness(0.8)';
+    // Apply vintage filter to baked image
+    ctx.filter = 'sepia(0.3) contrast(1.1) brightness(0.95) saturate(1.2)';
 
     const sx = (video.videoWidth  - size) / 2;
     const sy = (video.videoHeight - size) / 2;
@@ -82,13 +97,14 @@ export default function CameraScreen({ onComplete }) {
 
         setIsFlashing(true);
         playShutterSound();
-        setTimeout(() => setIsFlashing(false), 200);
+        setTimeout(() => setIsFlashing(false), 400);
 
         const shotFrames = [];
         let framesCaptured = 0;
         const BURST_FRAMES = 10;
-        const BURST_INTERVAL = 80; 
+        const BURST_INTERVAL = 80; // 800ms total
         
+        // First frame immediately
         const firstFrame = captureFrame();
         if (firstFrame) shotFrames.push(firstFrame);
         framesCaptured++;
@@ -109,7 +125,7 @@ export default function CameraScreen({ onComplete }) {
             setPhotoIndex(newCount);
 
             if (newCount < 3) {
-              setTimeout(() => startShot(), 800);
+              setTimeout(() => startShot(), 800); // Give them 800ms after burst finishes before next countdown starts
             } else {
               if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
               setTimeout(() => onComplete(capturedDataRef.current), 600);
@@ -121,23 +137,25 @@ export default function CameraScreen({ onComplete }) {
   }
 
   const displayIndex = Math.min(photoIndex, 2);
-  const progressText = `[ ${displayIndex} / 3 ]`;
 
   return (
     <main className="camera-screen screen-enter">
-      <div className="camera-grid">
-        {/* Left: viewfinder */}
-        <section className="camera-feed-container">
-          <div className="feed-hud-border">
+      <FloatingPetals />
+
+      {/* Left: viewfinder */}
+      <section className="camera-viewfinder-side">
+        <div className="viewfinder-outer">
+          <div className="viewfinder-inner">
             {!isReady && (
-              <div className="feed-loading">
-                <span className="blink">[ ESTABLISHING CONNECTION ]</span>
+              <div className="camera-loading">
+                <div className="spinner" />
+                <p>starting camera...</p>
               </div>
             )}
 
             <video
               ref={videoRef}
-              className="feed-video"
+              className="camera-feed"
               autoPlay
               playsInline
               muted
@@ -145,50 +163,72 @@ export default function CameraScreen({ onComplete }) {
             />
 
             {countdown !== null && (
-              <div className="feed-countdown">
-                <span className="countdown-number">T-{countdown}.00</span>
+              <div className="countdown-overlay">
+                <span className="countdown-numeral" key={countdown}>
+                  {countdown}
+                </span>
+                <span className="countdown-subtext">get ready</span>
               </div>
             )}
 
-            <div className={`feed-flash ${isFlashing ? 'active' : ''}`} />
+            <div className={`flash-overlay ${isFlashing ? 'flashing' : ''}`} />
           </div>
-        </section>
+        </div>
 
-        {/* Right: telemetry */}
-        <section className="camera-telemetry">
-          <div className="telemetry-header">
-            <span>&gt; SENSOR_DATA_FEED</span>
-            <span className="blink">REC</span>
-          </div>
+        {/* Progress dots under viewfinder */}
+        <div className="progress-track">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className={`progress-dot ${
+                i < previews.length ? 'done' :
+                i === previews.length ? 'active' : ''
+              }`}
+            />
+          ))}
+        </div>
+      </section>
 
-          <div className="telemetry-status">
-            <h2 className="status-label">CAPTURE_PROGRESS</h2>
-            <div className="status-value">{progressText}</div>
-          </div>
+      {/* Right: info panel */}
+      <section className="camera-info-side">
+        <span className="camera-eyebrow">photobooth · anniversary edition</span>
 
-          <div className="telemetry-logs">
-            <p>&gt; ALLOCATING BUFFER...</p>
-            <p>&gt; LOCKING FOCUS...</p>
-            {countdown !== null && <p>&gt; FIRING SEQUENCE ENGAGED</p>}
-            {isFlashing && <p style={{color: 'var(--accent-red)'}}>&gt; EXPOSURE MAXIMIZED</p>}
-          </div>
+        <div>
+          <p className="camera-photo-label">
+            photo {Math.min(displayIndex + 1, 3)} of 3
+          </p>
+          <p className="camera-prompt">
+            {PROMPTS[displayIndex]}
+          </p>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--ink-muted)', marginTop: '0.5rem', lineHeight: 1.6 }}>
+            {SUBPROMPTS[displayIndex]}
+          </p>
+        </div>
 
-          <div className="telemetry-strip">
-            <h3 className="strip-label">BUFFER_DUMP:</h3>
-            <div className="strip-slots">
-              {[0, 1, 2].map(i => (
-                <div key={i} className={`strip-slot ${previews[i] ? 'filled' : ''}`}>
-                  {previews[i] ? (
-                    <img src={previews[i]} alt="captured frame" />
-                  ) : (
-                    <span>NO_DATA</span>
-                  )}
-                </div>
-              ))}
+        {/* Thumbnail strip */}
+        <div className="mini-strip">
+          {[0, 1, 2].map(i => (
+            <div key={i} className={`mini-slot ${previews[i] ? 'filled' : ''}`}>
+              {previews[i] && <img src={previews[i]} alt="" />}
             </div>
-          </div>
-        </section>
-      </div>
+          ))}
+        </div>
+
+        {/* Decorative botanical in corner */}
+        <div className="camera-art-corner">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <g transform="translate(60 100)">
+              <ellipse cx="0" cy="-18" rx="8" ry="18" fill="#E8B4B8" transform="rotate(0)"/>
+              <ellipse cx="0" cy="-18" rx="8" ry="18" fill="#F2D7D9" transform="rotate(72)"/>
+              <ellipse cx="0" cy="-18" rx="8" ry="18" fill="#E8B4B8" transform="rotate(144)"/>
+              <ellipse cx="0" cy="-18" rx="8" ry="18" fill="#F2D7D9" transform="rotate(216)"/>
+              <ellipse cx="0" cy="-18" rx="8" ry="18" fill="#C8B8D4" transform="rotate(288)"/>
+              <circle r="6" fill="#FDF8F5"/>
+            </g>
+            <path d="M60 100 Q55 70 50 40 Q45 20 55 5" stroke="#C8B8D4" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+      </section>
 
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </main>
