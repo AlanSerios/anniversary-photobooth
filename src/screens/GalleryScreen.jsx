@@ -1,6 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import LocomotiveScroll from 'locomotive-scroll';
-import 'locomotive-scroll/dist/locomotive-scroll.css';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { supabase } from '../lib/supabase';
@@ -67,49 +65,12 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
   }, []);
 
   const scrollRef = useRef(null);
-  const locoScrollRef = useRef(null);
 
-  // Initialize Locomotive & ScrollTrigger once
+  // Initialize ScrollTrigger once
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    if (!scrollRef.current) return;
-
-    locoScrollRef.current = new LocomotiveScroll({
-      el: scrollRef.current,
-      smooth: true,
-      smartphone: { smooth: true },
-      tablet: { smooth: true }
-    });
-
-    locoScrollRef.current.on('scroll', ScrollTrigger.update);
-
-    ScrollTrigger.scrollerProxy(scrollRef.current, {
-      scrollTop(value) {
-        return arguments.length 
-          ? locoScrollRef.current.scrollTo(value, 0, 0) 
-          : locoScrollRef.current.scroll.instance.scroll.y;
-      },
-      getBoundingClientRect() {
-        return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
-      },
-      pinType: scrollRef.current.style.transform ? "transform" : "fixed"
-    });
-
-    const refreshLoco = () => {
-      if (locoScrollRef.current) locoScrollRef.current.update();
-    };
-    ScrollTrigger.addEventListener("refresh", refreshLoco);
-
-    const ro = new ResizeObserver(() => {
-      refreshLoco();
-      ScrollTrigger.refresh();
-    });
-    ro.observe(scrollRef.current);
 
     return () => {
-      ro.disconnect();
-      ScrollTrigger.removeEventListener("refresh", refreshLoco);
-      if (locoScrollRef.current) locoScrollRef.current.destroy();
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
@@ -131,14 +92,12 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
             ease: "power2.out",
             scrollTrigger: {
               trigger: session,
-              scroller: scrollRef.current,
               start: "top 95%",
             }
           }
         );
       });
 
-      if (locoScrollRef.current) locoScrollRef.current.update();
       ScrollTrigger.refresh();
     }, 100);
     return () => clearTimeout(timer);
@@ -182,8 +141,8 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
         <FloatingPetals />
       </div>
 
-      <main className="gallery-screen screen-enter" data-scroll-container ref={scrollRef}>
-        <div className="gallery-inner" data-scroll-section>
+      <main className="gallery-screen screen-enter" ref={scrollRef}>
+        <div className="gallery-inner">
 
         <header className="gallery-header">
           <div className="gallery-title-block">
