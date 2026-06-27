@@ -1,4 +1,3 @@
-import FloatingPetals from '../components/FloatingPetals';
 import { unlockAudio } from '../lib/audio';
 import './ReadyScreen.css';
 
@@ -7,63 +6,45 @@ export default function ReadyScreen({ onReady, onGallery, hasHistory }) {
     unlockAudio();
     onReady();
   };
+  
   return (
     <main className="ready-screen screen-enter">
-      <FloatingPetals />
-
-      {/* Left: pixel art character */}
-      <section className="ready-art-side">
-        <div className="ready-bana-wrap">
-          <img
-            src="/bana.png"
-            alt="Bana holding flowers"
-            className="ready-bana-img"
-            draggable="false"
-          />
+      <div className="terminal-border">
+        <div className="terminal-header">
+          <span className="telemetry-data">[ SYS.INIT : PHOTOBOOTH_V8 ]</span>
+          <span className="telemetry-data right">OP_STATUS: AWAITING_INPUT</span>
         </div>
-        <p className="ready-art-watermark">
-          Flowers to my beautiful Wife
-        </p>
-      </section>
 
-      {/* Right: the card */}
-      <section className="ready-card-side">
-        <div className="ready-card-outer">
-          <div className="ready-card-inner">
-            <span className="ready-eyebrow">photobooth · anniversary edition</span>
-
-            <h1 className="ready-headline">
-              Are you ready for the picture,{' '}
-              <em>my Love?</em>
+        <section className="terminal-core">
+          <div className="core-hud">
+            <h1 className="hud-headline">
+              &gt; INITIATE CAPTURE SEQUENCE
             </h1>
-
-            <p className="ready-sub">
-              Tan-aw sa camera my Babiii — Bana will be watching.
+            <p className="hud-sub">
+              [ WARNING: EXTREME DATA DENSITY EXPECTED. PROCEED WITH CAUTION. ]
+              <br/><br/>
+              &gt;&gt; TARGET: ANNIVERSARY_8
+              <br/>
+              &gt;&gt; PROTOCOL: ENGAGED
             </p>
 
-            <div className="ready-actions-row">
-              <div className="ready-btn-outer">
-                <button className="ready-btn" onClick={handleReadyClick} id="btn-im-ready">
-                  I'm ready
-                  <span className="ready-btn-icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </button>
-              </div>
+            <div className="hud-actions">
+              <button className="hud-btn primary" onClick={handleReadyClick} id="btn-im-ready">
+                [ ENGAGE CAMERA ]
+              </button>
               
-              <button onClick={onGallery} className="ready-gallery-btn">
-                View Gallery
+              <button onClick={onGallery} className="hud-btn secondary">
+                [ ACCESS DATABASE ]
               </button>
             </div>
-
-            <span className="ready-footer">
-              June 27, 2026 · 8 YEARS AND FOREVERMORE
-            </span>
           </div>
+        </section>
+
+        <div className="terminal-footer">
+          <span className="telemetry-data">REC_DATE: 2026.06.27</span>
+          <span className="telemetry-data right">CLASSIFICATION: TOP_SECRET</span>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

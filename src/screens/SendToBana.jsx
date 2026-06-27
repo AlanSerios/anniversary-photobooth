@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react';
-import FloatingPetals from '../components/FloatingPetals';
 import './SendToBana.css';
 
 const LABELS = ['moment one', 'moment two', 'moment three'];
@@ -93,9 +92,7 @@ export default function SendToBana({ photos, onRetake, onSend }) {
 
   return (
     <main className="send-screen screen-enter">
-      <FloatingPetals />
-
-      <span className="send-eyebrow">one more thing</span>
+      <span className="send-eyebrow">[ REVIEW DATA PACKAGE ]</span>
 
       {/* Fan of 3 polaroid photos with magnetic tilt */}
       <div className="send-photos-fan">
@@ -116,27 +113,25 @@ export default function SendToBana({ photos, onRetake, onSend }) {
       <div className="send-card-outer">
         <div className="send-card-inner">
           <h1 className="send-question">
-            Send this to <em>Bana?</em>
+            TRANSMIT TO <em>BANA</em>?
           </h1>
 
           <p className="send-sub">
-            SOOOO GWAPAAAAA, YOU LOOK GORGEOUS BABIII!!!
+            &gt; SOOOO GWAPAAAAA, YOU LOOK GORGEOUS BABIII!!!
           </p>
 
           <div className="send-actions">
-            <div className="send-yes-outer">
-              <button className="send-yes-btn" onClick={onSend} id="btn-yes-lablab">
-                Yes, Lablab
-                <span className="send-yes-icon" aria-hidden="true">
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-              </button>
-            </div>
+            <button className="send-yes-btn" onClick={onSend} id="btn-yes-lablab">
+              [ TRANSMIT TO: BANA ]
+              <span className="send-yes-icon" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </button>
 
             <button className="send-retake-btn" onClick={onRetake} id="btn-retake">
-              Retake photos
+              [ ABORT & RECAPTURE ]
             </button>
           </div>
         </div>

@@ -1,20 +1,18 @@
 import { useEffect, useState, useRef } from 'react';
-import FloatingPetals from '../components/FloatingPetals';
 import { savePhoto } from '../lib/supabase';
 import GIF from 'gif.js';
 import './ResultScreen.css';
 
 /**
- * Canvas-based strip compositor — avoids html2canvas blank-image bug.
- * Draws each photo directly via drawImage() and composites a full strip PNG.
+ * Canvas-based strip compositor — Tactical Telemetry theme
  */
 export async function buildStripCanvas(photos) {
   const PHOTO_SIZE  = 400;
-  const GAP         = 16;
+  const GAP         = 20;
   const PADDING_X   = 24;
   const PADDING_TOP = 24;
-  const FOOTER_H    = 56;
-  const RADIUS      = 8;
+  const FOOTER_H    = 80;
+  const RADIUS      = 0; // Strict square edges
 
   const totalW = PHOTO_SIZE + PADDING_X * 2;
   const totalH = PADDING_TOP + photos.length * PHOTO_SIZE + (photos.length - 1) * GAP + GAP + FOOTER_H;
@@ -26,9 +24,16 @@ export async function buildStripCanvas(photos) {
   const ctx = canvas.getContext('2d');
   ctx.scale(SCALE, SCALE);
 
-  // White background
-  ctx.fillStyle = '#FFFFFF';
+  // Black background
+  ctx.fillStyle = '#050505';
   ctx.fillRect(0, 0, totalW, totalH);
+
+  // Grid lines
+  ctx.strokeStyle = '#333333';
+  ctx.lineWidth = 1;
+  for(let i=0; i<totalW; i+=20) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, totalH); ctx.stroke();
+  }
 
   for (let i = 0; i < photos.length; i++) {
     const img = await new Promise((res, rej) => {
@@ -39,30 +44,30 @@ export async function buildStripCanvas(photos) {
     });
     const y = PADDING_TOP + i * (PHOTO_SIZE + GAP);
 
-    // Rounded clip
     ctx.save();
     ctx.beginPath();
-    ctx.moveTo(PADDING_X + RADIUS, y);
-    ctx.lineTo(PADDING_X + PHOTO_SIZE - RADIUS, y);
-    ctx.arcTo(PADDING_X + PHOTO_SIZE, y, PADDING_X + PHOTO_SIZE, y + RADIUS, RADIUS);
-    ctx.lineTo(PADDING_X + PHOTO_SIZE, y + PHOTO_SIZE - RADIUS);
-    ctx.arcTo(PADDING_X + PHOTO_SIZE, y + PHOTO_SIZE, PADDING_X + PHOTO_SIZE - RADIUS, y + PHOTO_SIZE, RADIUS);
-    ctx.lineTo(PADDING_X + RADIUS, y + PHOTO_SIZE);
-    ctx.arcTo(PADDING_X, y + PHOTO_SIZE, PADDING_X, y + PHOTO_SIZE - RADIUS, RADIUS);
-    ctx.lineTo(PADDING_X, y + RADIUS);
-    ctx.arcTo(PADDING_X, y, PADDING_X + RADIUS, y, RADIUS);
-    ctx.closePath();
+    ctx.rect(PADDING_X, y, PHOTO_SIZE, PHOTO_SIZE);
     ctx.clip();
+    
+    // Grayscale filter for export
+    ctx.filter = 'grayscale(100%) contrast(1.2)';
     ctx.drawImage(img, PADDING_X, y, PHOTO_SIZE, PHOTO_SIZE);
     ctx.restore();
+
+    // Red border around photos
+    ctx.strokeStyle = '#FF2A2A';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(PADDING_X, y, PHOTO_SIZE, PHOTO_SIZE);
   }
 
   // Caption
-  ctx.font = `italic 20px 'Playfair Display', Georgia, serif`;
-  ctx.fillStyle = '#C97B84';
-  ctx.textAlign = 'center';
-  const captionY = PADDING_TOP + photos.length * (PHOTO_SIZE + GAP) + FOOTER_H / 2 + 7;
-  ctx.fillText('Happy 8th Anniversary', totalW / 2, captionY);
+  ctx.font = `bold 16px 'JetBrains Mono', monospace`;
+  ctx.fillStyle = '#EAEAEA';
+  ctx.textAlign = 'left';
+  const captionY = PADDING_TOP + photos.length * (PHOTO_SIZE + GAP) + 30;
+  ctx.fillText('> SESSION_ID: ' + Date.now().toString().slice(-6), PADDING_X, captionY);
+  ctx.fillStyle = '#FF2A2A';
+  ctx.fillText('STATUS: SUCCESS', PADDING_X, captionY + 20);
 
   return canvas.toDataURL('image/png');
 }
@@ -139,14 +144,13 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
           return savePhoto(gifDataUrl, i, sessionId);
         });
 
-        // Generate and upload the full animated slip as index 3
         const slipPromise = (async () => {
           try {
             const slipGifUrl = await buildAnimatedSlip(photos);
             return savePhoto(slipGifUrl, 3, sessionId);
           } catch (e) {
             console.error('Failed to generate animated slip for cloud:', e);
-            return null; // Don't fail the whole upload if slip fails
+            return null;
           }
         })();
 
@@ -166,7 +170,7 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
       const dataUrl = await buildStripCanvas(staticPhotos);
       const a = document.createElement('a');
       a.href     = dataUrl;
-      a.download = `anniversary-photobooth-${sessionId}.png`;
+      a.download = `telemetry-export-${sessionId}.png`;
       a.click();
     } catch (e) {
       console.error('Download failed:', e);
@@ -178,7 +182,6 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
   const handleDownloadGif = async () => {
     setIsBuildingGif(true);
     try {
-      // Find max length in case burst sizes differ slightly
       const maxFrames = Math.max(...photos.map(b => b.length));
       
       const gif = new GIF({
@@ -202,13 +205,13 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
           el.src = dataUrl;
         });
         
-        gif.addFrame(img, { delay: 80 }); // 80ms to match burst interval
+        gif.addFrame(img, { delay: 80 }); 
       }
 
       gif.on('finished', function(blob) {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `anniversary-animated-${sessionId}.gif`;
+        a.download = `telemetry-animated-${sessionId}.gif`;
         a.click();
         setIsBuildingGif(false);
       });
@@ -220,153 +223,87 @@ export default function ResultScreen({ photos, sessionId, onRetake, onGallery })
     }
   };
 
-  // 3D Magnetic Tilt Effect
-  const stripRef = useRef(null);
-  const [tiltStyle, setTiltStyle] = useState({});
-
-  const handleMouseMove = (e) => {
-    if (!stripRef.current) return;
-    const rect = stripRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -12; 
-    const rotateY = ((x - centerX) / centerX) * 12;
-
-    setTiltStyle({
-      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`,
-      transition: 'transform 0.1s ease-out'
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setTiltStyle({
-      transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
-      transition: 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)'
-    });
-  };
-
-  // Live Photo Playback Effect
   const [frameIdx, setFrameIdx] = useState(0);
 
   useEffect(() => {
-    // Make sure we have bursts to animate
     if (!photos || photos.length === 0 || !Array.isArray(photos[0])) return;
-    
     const maxFrames = Math.max(...photos.map(b => b.length));
     const interval = setInterval(() => {
       setFrameIdx(f => (f + 1) % maxFrames);
-    }, 80); // 80ms to match capture speed
+    }, 80); 
     return () => clearInterval(interval);
   }, [photos]);
 
   return (
     <main className="result-screen screen-enter">
-      <FloatingPetals explosion={true} />
+      <div className="terminal-border">
+        <div className="terminal-header">
+          <span className="telemetry-data">[ DATA.EXPORT : RECORD_VIEW ]</span>
+          <span className="telemetry-data right blink">UPLOADING_TO_SERVER</span>
+        </div>
 
-      {/* Left: Photo strip printing out */}
-      <section className="result-strip-side">
-        <div className="printer-machine">
-          <div className="printer-body">
-            <div className="printer-lens"></div>
-            <div className="printer-flash"></div>
-          </div>
-          <div className="printer-slot-area">
-            <div className="printer-slot"></div>
-          </div>
-          <div className="printer-mask">
-            <div className="photo-strip-outer">
-              <div
-                className="photo-strip-inner"
-                ref={stripRef}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                style={tiltStyle}
-              >
-                {photos.map((burst, i) => {
-                  const src = Array.isArray(burst) ? burst[frameIdx % burst.length] : burst;
-                  return (
-                    <div key={i} className="strip-photo">
-                      <img src={src} alt={`Photo ${i + 1}`} />
-                    </div>
-                  );
-                })}
-                <p className="strip-caption">Happy 8th Anniversary</p>
+        <section className="terminal-core result-layout">
+          
+          {/* Left: Strip */}
+          <div className="export-visual">
+            <div className="strip-container">
+              {photos.map((burst, i) => {
+                const src = Array.isArray(burst) ? burst[frameIdx % burst.length] : burst;
+                return (
+                  <div key={i} className="export-photo">
+                    <img src={src} alt={`Record ${i + 1}`} />
+                  </div>
+                );
+              })}
+              <div className="export-caption">
+                <p>&gt; SESSION_ID: {sessionId.slice(0,8)}</p>
+                <p className="red">STATUS: SECURED</p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Right: Panel */}
-      <section className="result-panel-side">
-        <div className="result-card-outer">
-          <div className="result-card-inner">
-            <span className="result-eyebrow">photobooth · anniversary edition</span>
+          {/* Right: Data Panel */}
+          <div className="export-data">
+            <h1 className="export-headline">DATA_CAPTURED</h1>
+            <div className="export-log">
+              <p>[ {new Date().toISOString()} ]</p>
+              <p>&gt; THREE_FRAMES EXTRACTED.</p>
+              <p>&gt; EIGHT_YEARS ARCHIVED.</p>
+              <p>&gt; TARGET IS BEAUTIFUL.</p>
+            </div>
 
-            <h1 className="result-headline">
-              Your moment, <em>captured.</em>
-            </h1>
-
-            <p className="result-sub">
-              Three frames. Eight years. You looked beautiful in every single one. We can now go back na sa Link My Loveeeeeeeee &lt;3
-            </p>
-
-            <div className="result-actions-clean">
-              <button
-                className="btn-download-primary"
-                onClick={handleDownload}
-                disabled={isDownloading}
-                id="btn-download-strip"
-              >
-                {isDownloading ? 'Building...' : 'Save to device'}
-                <span className="btn-download-icon" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 3v7M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
+            <div className="export-actions">
+              <button className="hud-btn primary" onClick={handleDownload} disabled={isDownloading}>
+                {isDownloading ? '[ COMPILING BINARY... ]' : '[ EXPORT STATIC_PNG ]'}
               </button>
 
-              <button
-                className="btn-download-primary"
-                onClick={handleDownloadGif}
-                disabled={isBuildingGif}
-                id="btn-download-gif"
-                style={{ backgroundColor: 'var(--lavender-deep)', borderColor: 'var(--lavender-deep)' }}
-              >
-                {isBuildingGif ? 'Building GIF...' : 'Save as animated GIF'}
-                <span className="btn-download-icon" aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 3v7M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
+              <button className="hud-btn secondary" onClick={handleDownloadGif} disabled={isBuildingGif}>
+                {isBuildingGif ? '[ RENDERING SEQUENCE... ]' : '[ EXPORT ANIMATED_GIF ]'}
               </button>
 
-              <div className="result-actions-secondary">
-                <button className="btn-secondary" onClick={onRetake} id="btn-retake">
-                  Take another
+              <div className="export-secondary-actions">
+                <button className="hud-btn secondary" onClick={onRetake}>
+                  [ RETRY_CAPTURE ]
                 </button>
-
                 {onGallery && (
-                  <button className="btn-secondary btn-gallery" onClick={onGallery} id="btn-gallery">
-                    View gallery
+                  <button className="hud-btn secondary" onClick={onGallery}>
+                    [ DATABASE_ARCHIVE ]
                   </button>
                 )}
-                
-                <a 
-                  href="https://unifab.my.canva.site/" 
-                  className="btn-secondary btn-gallery" 
-                  style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  Go Back to Letter
+                <a href="https://unifab.my.canva.site/" className="hud-btn secondary link-btn">
+                  [ ABORT_TO_LETTER ]
                 </a>
               </div>
             </div>
           </div>
+
+        </section>
+
+        <div className="terminal-footer">
+          <span className="telemetry-data">SYNC_STATUS: {saveStatus.toUpperCase()}</span>
+          <span className="telemetry-data right">CLASSIFICATION: TOP_SECRET</span>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
