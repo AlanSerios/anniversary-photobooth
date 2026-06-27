@@ -1,4 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import LocomotiveScroll from 'locomotive-scroll';
+import 'locomotive-scroll/dist/locomotive-scroll.css';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { supabase } from '../lib/supabase';
 import FloatingPetals from '../components/FloatingPetals';
 import { buildStripCanvas } from './ResultScreen';
@@ -61,6 +65,84 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
     }
     fetchSessions();
   }, []);
+
+  const scrollRef = useRef(null);
+  const locoScrollRef = useRef(null);
+
+  // Initialize Locomotive & ScrollTrigger once
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    if (!scrollRef.current) return;
+
+    locoScrollRef.current = new LocomotiveScroll({
+      el: scrollRef.current,
+      smooth: true,
+      smartphone: { smooth: true },
+      tablet: { smooth: true }
+    });
+
+    locoScrollRef.current.on('scroll', ScrollTrigger.update);
+
+    ScrollTrigger.scrollerProxy(scrollRef.current, {
+      scrollTop(value) {
+        return arguments.length 
+          ? locoScrollRef.current.scrollTo(value, 0, 0) 
+          : locoScrollRef.current.scroll.instance.scroll.y;
+      },
+      getBoundingClientRect() {
+        return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+      },
+      pinType: scrollRef.current.style.transform ? "transform" : "fixed"
+    });
+
+    const refreshLoco = () => {
+      if (locoScrollRef.current) locoScrollRef.current.update();
+    };
+    ScrollTrigger.addEventListener("refresh", refreshLoco);
+
+    const ro = new ResizeObserver(() => {
+      refreshLoco();
+      ScrollTrigger.refresh();
+    });
+    ro.observe(scrollRef.current);
+
+    return () => {
+      ro.disconnect();
+      ScrollTrigger.removeEventListener("refresh", refreshLoco);
+      if (locoScrollRef.current) locoScrollRef.current.destroy();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, []);
+
+  // Update animations when sessions change
+  useEffect(() => {
+    if (loading) return;
+    const timer = setTimeout(() => {
+      ScrollTrigger.getAll().forEach(t => t.kill());
+      
+      const sessionElements = gsap.utils.toArray('.gallery-session');
+      sessionElements.forEach((session) => {
+        gsap.fromTo(session, 
+          { opacity: 0, y: 50 },
+          {
+            opacity: 1, 
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: session,
+              scroller: scrollRef.current,
+              start: "top 95%",
+            }
+          }
+        );
+      });
+
+      if (locoScrollRef.current) locoScrollRef.current.update();
+      ScrollTrigger.refresh();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [loading, activeTab, displayedSessions.length]);
   const handleDownloadSession = async (session) => {
     const slipItem = session.photos[3];
     if (slipItem && typeof slipItem === 'string') {
@@ -94,9 +176,14 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
     : sessions;
 
   return (
-    <main className="gallery-screen screen-enter">
-      <FloatingPetals />
-      <div className="gallery-inner">
+    <>
+      {/* Background layer stays completely fixed to prevent layout thrashing */}
+      <div className="gallery-background" data-scroll-container={false}>
+        <FloatingPetals />
+      </div>
+
+      <main className="gallery-screen screen-enter" data-scroll-container ref={scrollRef}>
+        <div className="gallery-inner" data-scroll-section>
 
         <header className="gallery-header">
           <div className="gallery-title-block">
@@ -163,7 +250,6 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
               <div
                 key={session.id}
                 className="gallery-session"
-                style={{ animationDelay: `${idx * 0.08}s` }}
               >
                 <div className="gallery-session-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>
@@ -197,7 +283,8 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
           </div>
         )}
 
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
