@@ -1,6 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import FloatingPetals from '../components/FloatingPetals';
 import { buildStripCanvas } from './ResultScreen';
@@ -64,44 +62,7 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
     fetchSessions();
   }, []);
 
-  const scrollRef = useRef(null);
 
-  // Initialize ScrollTrigger once
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, []);
-
-  // Update animations when sessions change
-  useEffect(() => {
-    if (loading) return;
-    const timer = setTimeout(() => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-      
-      const sessionElements = gsap.utils.toArray('.gallery-session');
-      sessionElements.forEach((session) => {
-        gsap.fromTo(session, 
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1, 
-            y: 0,
-            duration: 0.8,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: session,
-              start: "top 95%",
-            }
-          }
-        );
-      });
-
-      ScrollTrigger.refresh();
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [loading, activeTab, displayedSessions.length]);
   const handleDownloadSession = async (session) => {
     const slipItem = session.photos[3];
     if (slipItem && typeof slipItem === 'string') {
@@ -141,7 +102,7 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
         <FloatingPetals />
       </div>
 
-      <main className="gallery-screen screen-enter" ref={scrollRef}>
+      <main className="gallery-screen screen-enter">
         <div className="gallery-inner">
 
         <header className="gallery-header">
