@@ -60,9 +60,6 @@ export default function GalleryScreen({ onBack, localSessions, mySessionIds = []
       setLoading(false);
     }
     fetchSessions();
-
-    const interval = setInterval(() => setFrameIdx(f => f + 1), 80);
-    return () => clearInterval(interval);
   }, []);
   const handleDownloadSession = async (session) => {
     const slipItem = session.photos[3];
